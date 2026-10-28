@@ -14,13 +14,16 @@ Channel: `Microsoft-Windows-Sysmon/Operational`. Full JSON captured in Wazuh:
 | `parentImage` / `parentCommandLine` | `C:\Windows\SysWOW64\cmd.exe` / `cmd.exe` (psexec spawned cmd) |
 | `user` / `integrityLevel` | `NT AUTHORITY\SYSTEM` / `System` |
 | `processId` / `parentProcessId` | 10056 / 3960 |
-| `hashes` | SHA1=FEE89BB169E4ABC71C7F1E8D05D0677F2B5919; MD5=C32CA4ACCFCC635EC1EA6ED8A34DF5FAC; SHA256=73A3C4AEF5DE385875339FC2EB7E58A9A8E47B6161BDC6436BF78A763537BE7; IMPHASH=194277A488EDD0A9731655B87166C7 |
+| `hashes` | SHA1=FEE89BB169E4ABC71C7F1E8D05D0677F2B5919; MD5=C32CA4ACCFCC635EC1EA6ED8A34DF5FAC; SHA256=73A3C4AEF5DE385875339FC2EB7E58A9A8E47B6161BDC6436BF78A763537BE7; IMPHASH=194277A488EDD0A9731[...]
 | `ruleName` (Sysmon tag) | **technique_id=T1059.001, technique_name=PowerShell** (SwiftOnSecurity config) |
 | `utcTime` | 2026-10-27 16:09:43.270Z |
 | `fileVersion` | 10.0.19041.546 |
-📸 `evidence/07-wazuh-sysmon-1-powershell-iex.png`
 
-**Why it's suspicious:** `-nop` (no profile), `-w hidden`, `IEX`, `Net.WebClient.DownloadString`, 32-bit PowerShell, parent = psexec-spawned cmd, running as SYSTEM. Any one is notable; all together = malicious.
+<p align="center">
+  <img src="./evidence/07-wazuh-sysmon-1-powershell-iex.png" width="80%" alt="Wazuh Sysmon 1 PowerShell IEX evidence">
+</p>
+
+**Why it's suspicious:** `-nop` (no profile), `-w hidden`, `IEX`, `Net.WebClient.DownloadString`, 32-bit PowerShell, parent = psexec-spawned cmd, running as SYSTEM. Any one is notable; all together it is a high-confidence post-execution execution chain.
 
 ## 2. PowerShell Event ID 4104 — Script Block Logging (defeats `-enc`)
 
@@ -36,7 +39,10 @@ Channel: `Microsoft-Windows-PowerShell/Operational`. Confirmed working:
 | `processID` | 9968 |
 | `computer` | DESKTOP-F0JVTQT |
 | `severityValue` | VERBOSE |
-📸 `evidence/08-wazuh-powershell-4104-scriptblock.png`
+
+<p align="center">
+  <img src="./evidence/08-wazuh-powershell-4104-scriptblock.png" width="80%" alt="Wazuh PowerShell 4104 scriptblock evidence">
+</p>
 
 **Key:** even the `-enc` base64 command is logged **decoded** in 4104 — obfuscation defeated at the logging layer.
 
@@ -52,10 +58,16 @@ Channel: `Microsoft-Windows-PowerShell/Operational`. Confirmed working:
 | `processId` | 9152 |
 | `ruleName` (Sysmon tag) | **technique_id=T1571, technique_name=Non-Standard Port** |
 | `utcTime` | 2026-10-26 17:33:27.688Z |
-📸 `evidence/09-wazuh-sysmon-3-network-egress.png`
+
+<p align="center">
+  <img src="./evidence/09-wazuh-sysmon-3-network-egress.png" width="80%" alt="Wazuh Sysmon 3 network egress evidence">
+</p>
 
 The PowerShell HTTP download (port 80) was corroborated by the attacker's HTTP server log: `GET /payload.ps1 200` from `.108`.
-📸 `evidence/03-kali-http-server-get.png`
+
+<p align="center">
+  <img src="./evidence/03-kali-http-server-get.png" width="80%" alt="Kali HTTP server GET evidence">
+</p>
 
 ## Detection gap note
 

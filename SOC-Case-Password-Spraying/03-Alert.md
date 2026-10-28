@@ -12,10 +12,17 @@ Detection confirmed via Wazuh archives (`wazuh-archives-*`) and Security Events.
 
 ## The spray signature (what makes this different from brute force)
 
-- **Flat failure distribution:** Visualize → bar chart by `data.win.eventdata.targetUserName` shows **equal height bars** (asmth, dwilliams, lgarcia, mflores, okim, rtan ≈ 1 failure each). A brute force would show a tall spike on 1–2 accounts.
-📸 `evidence/09-wazuh-spray-vs-bruteforce-chart.png`
+- **Flat failure distribution:** Visualize → bar chart by `data.win.eventdata.targetUserName` shows **equal height bars** (asmth, dwilliams, lgarcia, mflores, okim, rtan ≈ 1 failure each). A brute-force attack would concentrate on a small set of accounts.
+
+<p align="center">
+  <img src="./evidence/09-wazuh-spray-vs-bruteforce-chart.png" width="80%" alt="Wazuh spray vs brute-force chart">
+</p>
+
 - **Zero 4740 lockouts** — the attacker deliberately stayed under the threshold. Query `data.win.system.eventID: 4740` (Last 5 hours) → "No Results".
-📸 `evidence/05-wazuh-no-4740-lockout.png`
+
+<p align="center">
+  <img src="./evidence/05-wazuh-no-4740-lockout.png" width="80%" alt="Wazuh no lockout evidence">
+</p>
 
 ## 4625 failure — expanded fields (from evidence)
 
@@ -30,15 +37,21 @@ Detection confirmed via Wazuh archives (`wazuh-archives-*`) and Security Events.
 | `data.win.eventdata.failureReason` | %%2313 |
 | `data.win.eventdata.authenticationPackageName` | NTLM |
 | `data.win.eventdata.logonProcessName` | NtLmSsp |
-📸 `evidence/06-wazuh-4625-expanded.png`
+
+<p align="center">
+  <img src="./evidence/06-wazuh-4625-expanded.png" width="80%" alt="Wazuh 4625 expanded">
+</p>
 
 ## 4624 success — expanded (dwilliams)
 
 - `targetUserName: dwilliams`, `logonType: 3`, `authenticationPackageName: NTLM`, `lmPackageName: NTLM V2`
 - `workstationName: BUTCH` (attacker hostname — strong attribution), `ipPort: 39020`
 - `targetUserSid: S-1-5-21-1384641147-1165911532-2121891537-1005`
-📸 `evidence/07-wazuh-4624-success-dwilliams.png`
+
+<p align="center">
+  <img src="./evidence/07-wazuh-4624-success-dwilliams.png" width="80%" alt="Wazuh 4624 success dwilliams">
+</p>
 
 ## Detection gap note
 
-Because no single rule fired on "many users, few failures each," this spray would be missed by naive lockout-based alerting. Detection required the analyst to look at the **distribution** of 4625s by username (flat = spray) and the **absence** of 4740 combined with a 4624 success. This is the detection-engineering lesson → custom rule in `09-Remediation.md`.
+Because no single rule fired on "many users, few failures each," this spray would be missed by naive lockout-based alerting. Detection required the analyst to look at the **distribution** of 4625s and correlate with successful 4624s from the same IP.

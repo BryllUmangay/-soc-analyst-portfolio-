@@ -30,7 +30,9 @@ Detection confirmed via Wazuh archives (`wazuh-archives-4.x-2026.10.26`) and Sec
 | `data.win.eventdata.logonProcessName` | NtLmSsp |
 | `data.win.system.eventRecordID` | 3314 (sample) |
 
-📸 `evidence/07-wazuh-4625-expanded.png`
+<p align="center">
+  <img src="./evidence/07-wazuh-4625-expanded.png" width="80%" alt="Wazuh 4625 expanded">
+</p>
 
 ## 4740 lockout — expanded
 
@@ -38,7 +40,10 @@ Detection confirmed via Wazuh archives (`wazuh-archives-4.x-2026.10.26`) and Sec
 - `subjectUserName: DESKTOP-F0JVTQT$` (the computer itself, as expected for local lockout)
 - `subjectDomainName: WORKGROUP`
 - `systemTime: 2026-10-26T15:56:56.471627Z` = **23:56:56 UTC+8**
-📸 `evidence/09-wazuh-4740-lockout.png`
+
+<p align="center">
+  <img src="./evidence/09-wazuh-4740-lockout.png" width="80%" alt="Wazuh 4740 lockout evidence">
+</p>
 
 ## 4624 success — expanded
 
@@ -46,8 +51,11 @@ Detection confirmed via Wazuh archives (`wazuh-archives-4.x-2026.10.26`) and Sec
 - `ipAddress: 192.168.100.106`, `ipPort: 50488` (sample)
 - `logonType: 3`, `authenticationPackageName: NTLM`, `lmPackageName: NTLM V2`
 - message: "An account was successfully logged on."
-📸 `evidence/08-wazuh-4624-success.png`
+
+<p align="center">
+  <img src="./evidence/08-wazuh-4624-success.png" width="80%" alt="Wazuh 4624 success evidence">
+</p>
 
 ## Wazuh rule IDs
 
-Built-in rule IDs vary by Wazuh version. In this deployment, detection was validated through the raw event stream (archives) with the fields above; Security Events alert rule IDs (4625 / 4740 / 4624 correlation) should be captured from the Security Events module and appended here. The critical detection logic is the **4625 burst → 4740 lockout → 4624 success** sequence from a single source IP.
+Built-in rule IDs vary by Wazuh version. In this deployment, detection was validated through the raw event stream (archives) with the fields above; Security Events alert rule IDs (4625 / 4740 / 4624) are not the primary evidence source here.

