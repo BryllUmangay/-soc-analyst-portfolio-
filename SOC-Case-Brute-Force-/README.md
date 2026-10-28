@@ -32,3 +32,55 @@
 - **Successful logons (4624, type 3):** 2 — `jdoe:Password1` and `adminlab:P@ssw0rd` (adminlab = local administrator → `(Pwn3d!)`)
 - **Outcome:** attacker obtained local admin access via SMB (ADMIN$/C$ shares enumerated). Contained: passwords rotated, lockout policy enforced.
 - **Key finding:** Hydra failed outright — SMBv1 disabled on target (secure default); attacker pivoted to NetExec (SMBv2/3). Documented as detection-engineering lesson.
+
+## Evidence Gallery
+
+### Kali attack screenshots
+
+<p align="center">
+  <img src="./evidence/01-kali-nmap-scan.png" width="80%" alt="Kali nmap scan">
+</p>
+
+<p align="center">
+  <img src="./evidence/03-kali-netexec-brute-force.png" width="80%" alt="NetExec brute force">
+</p>
+
+<p align="center">
+  <img src="./evidence/04-kali-successful-access.png" width="80%" alt="Successful access via SMB">
+</p>
+
+### Wazuh screenshots
+
+<p align="center">
+  <img src="./evidence/05-wazuh-all-events.png" width="80%" alt="Wazuh all events">
+</p>
+
+<p align="center">
+  <img src="./evidence/06-wazuh-4625-burst.png" width="80%" alt="Wazuh 4625 burst">
+</p>
+
+<p align="center">
+  <img src="./evidence/07-wazuh-4625-expanded.png" width="80%" alt="Wazuh 4625 expanded">
+</p>
+
+<p align="center">
+  <img src="./evidence/08-wazuh-4624-success.png" width="80%" alt="Wazuh 4624 success">
+</p>
+
+<p align="center">
+  <img src="./evidence/08-wazuh-4624-success1.png" width="80%" alt="Wazuh 4624 success alternate view">
+</p>
+
+<p align="center">
+  <img src="./evidence/09-wazuh-4740-lockout.png" width="80%" alt="Wazuh 4740 lockout">
+</p>
+
+<p align="center">
+  <img src="./evidence/10-wazuh-archives-burst.png" width="80%" alt="Wazuh archives burst">
+</p>
+
+### Host evidence
+
+<p align="center">
+  <img src="./evidence/11-windows-eventviewer.png" width="80%" alt="Windows Event Viewer corroboration">
+</p>

@@ -1,6 +1,6 @@
 # 05 — Investigation (triage steps, actual)
 
-1. **Foothold confirmed:** `impacket-psexec adminlab` → SYSTEM shell (`C:\Windows\system32>`). Payload hosted on Kali `python3 -m http.server 80`. 📸 `01-kali-psexec-shell.png`, `03-kali-http-server-get.png`
+1. **Foothold confirmed:** `impacket-psexec adminlab` → SYSTEM shell (`C:\Windows\system32>`) on target. Payload hosted on Kali `python3 -m http.server 80`. 📸 `01-kali-psexec-shell.png`, `03-kali-http-server-get.png`
 2. **IEX cradle executed:** payload ran (`[+] beacon check-in OK`); HTTP server logged `GET /payload.ps1 200` from `.108`. 📸 `02-kali-iex-download-cradle.png`
 3. **Encoded command ran:** `-enc` base64 of same cradle (T1027). 📸 `04-kali-encoded-command.png`
 4. **AMSI bypass attempted:** reflection `amsiInitFailed`; download failed in that run (server stopped — lab artifact), technique captured. 📸 `05-kali-amsi-bypass.png`
@@ -22,6 +22,40 @@
 | `08-wazuh-powershell-4104-scriptblock.png` | 4104 Script Block Logging confirmed |
 | `09-wazuh-sysmon-3-network-egress.png` | Sysmon 3: free.exe → .106:4444 (T1571) |
 
+## Evidence gallery
+
+<p align="center">
+  <img src="./evidence/01-kali-psexec-shell.png" width="80%" alt="Kali psexec shell">
+</p>
+
+<p align="center">
+  <img src="./evidence/02-kali-iex-download-cradle.png" width="80%" alt="Kali IEX cradle">
+</p>
+
+<p align="center">
+  <img src="./evidence/03-kali-http-server-get.png" width="80%" alt="Kali HTTP server GET">
+</p>
+
+<p align="center">
+  <img src="./evidence/04-kali-encoded-command.png" width="80%" alt="Kali encoded command">
+</p>
+
+<p align="center">
+  <img src="./evidence/05-kali-amsi-bypass.png" width="80%" alt="Kali AMSI bypass attempt">
+</p>
+
+<p align="center">
+  <img src="./evidence/07-wazuh-sysmon-1-powershell-iex.png" width="80%" alt="Wazuh Sysmon 1 PowerShell IEX">
+</p>
+
+<p align="center">
+  <img src="./evidence/08-wazuh-powershell-4104-scriptblock.png" width="80%" alt="Wazuh PowerShell 4104 scriptblock">
+</p>
+
+<p align="center">
+  <img src="./evidence/09-wazuh-sysmon-3-network-egress.png" width="80%" alt="Wazuh Sysmon 3 network egress">
+</p>
+
 ## Analyst note
 
-The Sysmon Event ID 3 capture shows `free.exe` (a reverse-shell binary in `bryll\Downloads`) beaconing to 4444 — separate from the PowerShell HTTP download (corroborated by the attacker's web server log). Together they demonstrate both download (T1105) and C2 egress (T1571) detection. Timestamps span multiple test runs (Oct 26–28); correlation was done by process/IP, not wall-clock alone.
+The Sysmon Event ID 3 capture shows `free.exe` (a reverse-shell binary in `bryll\Downloads`) beaconing to 4444 — separate from the PowerShell HTTP download (corroborated by the attacker's web server logs). This split between download and beaconing is important for triage and for validating the execution path.
